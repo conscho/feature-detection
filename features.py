@@ -98,9 +98,25 @@ class HarrisKeypointDetector(KeypointDetector):
         # each pixel and store in 'harrisImage'.  See the project page
         # for direction on how to do this. Also compute an orientation
         # for each pixel and store it in 'orientationImage.'
-        # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
-        # TODO-BLOCK-END
+
+        Ix = ndimage.filters.sobel(srcImage,0)
+        Iy = ndimage.filters.sobel(srcImage,1)
+
+        Ix2 = Ix * Ix
+        Iy2 = Iy * Iy
+        IxIy = Ix * Iy
+        gaussianImage = ndimage.filters.gaussian_filter(srcImage, 0.5, truncate=3)
+
+        harris1 = ndimage.filters.convolve(Ix2, gaussianImage)
+        harris2 = ndimage.filters.convolve(Iy2, gaussianImage)
+        harris3 = ndimage.filters.convolve(IxIy, gaussianImage)
+
+        for i in range(height):
+            for j in range(width):
+                H = [[harris1[i][j], harris3[i][j]], [harris3[i][j],harris2[i][j]]]
+                harrisImage[i][j] = np.linalg.det(H) - 0.1 * (np.trace(H))**2
+
+        orientationImage = np.rad2deg(np.arctan2(Iy,Ix))
 
         return harrisImage, orientationImage
 
@@ -459,4 +475,3 @@ class ORBFeatureMatcher(FeatureMatcher):
 
     def matchFeatures(self, desc1, desc2):
         return self.bf.match(desc1.astype(np.uint8), desc2.astype(np.uint8))
-
