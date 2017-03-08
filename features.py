@@ -99,23 +99,27 @@ class HarrisKeypointDetector(KeypointDetector):
         # for direction on how to do this. Also compute an orientation
         # for each pixel and store it in 'orientationImage.'
 
-        Ix = ndimage.filters.sobel(srcImage,0)
-        Iy = ndimage.filters.sobel(srcImage,1)
+        print("Calculating Sobel")
+        Ix = ndimage.filters.sobel(srcImage, 1)
+        Iy = ndimage.filters.sobel(srcImage, 0)
 
-        Ix2 = Ix * Ix
-        Iy2 = Iy * Iy
-        IxIy = Ix * Iy
-        gaussianImage = ndimage.filters.gaussian_filter(srcImage, 0.5, truncate=3)
+        Ix2 = Ix**2
+        Iy2 = Iy**2
+        IxIy = Ix*Iy
 
-        harris1 = ndimage.filters.convolve(Ix2, gaussianImage)
-        harris2 = ndimage.filters.convolve(Iy2, gaussianImage)
-        harris3 = ndimage.filters.convolve(IxIy, gaussianImage)
+        print("Convolving")
+        harris1 = ndimage.filters.gaussian_filter(Ix2, 0.5, truncate=3, mode='constant', cval=0)
+        harris2 = ndimage.filters.gaussian_filter(Iy2, 0.5, truncate=3, mode='constant', cval=0)
+        harris3 = ndimage.filters.gaussian_filter(IxIy, 0.5, truncate=3, mode='constant', cval=0)
 
+        print("Calculating Harris")
         for i in range(height):
             for j in range(width):
                 H = [[harris1[i][j], harris3[i][j]], [harris3[i][j],harris2[i][j]]]
                 harrisImage[i][j] = np.linalg.det(H) - 0.1 * (np.trace(H))**2
 
+        print("Calculating Orientation")
+        ## TODO: Using gaussian smoothed version?
         orientationImage = np.rad2deg(np.arctan2(Iy,Ix))
 
         return harrisImage, orientationImage
@@ -132,11 +136,8 @@ class HarrisKeypointDetector(KeypointDetector):
                          its 7x7 neighborhood.
         '''
         destImage = np.zeros_like(harrisImage, np.bool)
-
-        # TODO 2: Compute the local maxima image
-        # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
-        # TODO-BLOCK-END
+        height, width = destImage.shape[:2]
+        destImage = (harrisImage != ndimage.maximum_filter(harrisImage,7))
 
         return destImage
 
@@ -172,21 +173,18 @@ class HarrisKeypointDetector(KeypointDetector):
         # needed for descriptor computation for each point.
         # You need to fill x, y, and angle.
         for y in range(height):
-            for x in range(width):
-                if not harrisMaxImage[y, x]:
-                    continue
+           for x in range(width):
+               if not harrisMaxImage[y, x]:
+                   continue
 
-                f = cv2.KeyPoint()
+                # TODO: 3   
+               f = cv2.KeyPoint()
+               f.size = 10
+               f.pt = (x,y)
+               f.angle = orientationImage[y,x]
+               f.response = harrisImage[y,x]
 
-                # TODO 3: Fill in feature f with location and orientation
-                # data here. Set f.size to 10, f.pt to the (x,y) coordinate,
-                # f.angle to the orientation in degrees and f.response to
-                # the Harris score
-                # TODO-BLOCK-BEGIN
-                raise Exception("TODO in features.py not implemented")
-                # TODO-BLOCK-END
-
-                features.append(f)
+               features.append(f)
 
         return features
 

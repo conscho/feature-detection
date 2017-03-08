@@ -39,7 +39,7 @@ def try_this(todo, run, truth, compare, *args, **kargs):
     Run a function, test the output with compare, and print and error if it doesn't work
     @arg todo (int or str): The Todo number
     @arg run (func): The function to run
-    @arg truth (any): The correct output of the function 
+    @arg truth (any): The correct output of the function
     @arg compare (func->bool): Compares the output of the `run` function to truth and provides a boolean if correct
     @arg *args (any): Any arguments that should be passed to `run`
     @arg **kargs (any): Any kargs that should be passed to compare
@@ -99,7 +99,7 @@ pay attention to the tolerances used by this testing script. It is
 possible that your answer is correct but it barely falls outside the
 tolerance range.
 
-This is not the script used by the autograder. 
+This is not the script used by the autograder.
 '''
 loaded = np.load('resources/arrays.npz')
 d = unpickle_cv2(loaded['d_proc'])
@@ -125,4 +125,3 @@ try_this(3, HKD.detectKeypoints, d, compare_cv2_points, image)
 try_this(4, SFD.describeFeatures, loaded['e'], compare_array, image, d)
 
 try_this('5 and/or 6', MFD.describeFeatures, loaded['f'], compare_array, image, d)
-
