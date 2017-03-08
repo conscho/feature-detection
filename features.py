@@ -264,6 +264,7 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
         desc = np.zeros((len(keypoints), windowSize * windowSize))
         grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         grayImage = ndimage.gaussian_filter(grayImage, 0.5)
+        grayImage = np.pad(grayImage, 20, 'constant', constant_values=0)
 
         for i, f in enumerate(keypoints):
             # TODO 5: Compute the transform as described by the feature
@@ -272,10 +273,7 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # the feature to the appropriate pixels in the 8x8 feature
             # descriptor image.
             transMx = np.zeros((2, 3))
-
-            # TODO-BLOCK-BEGIN
-            raise Exception("TODO in features.py not implemented")
-            # TODO-BLOCK-END
+            transMx = (transformations.get_rot_mx(0,0,np.deg2rad(f.angle)) * transformations.get_scale_mx(5,5,0))[:2,:3]
 
             # Call the warp affine function to do the mapping
             # It expects a 2x3 matrix
@@ -285,9 +283,7 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # TODO 6: Normalize the descriptor to have zero mean and unit
             # variance. If the variance is zero then set the descriptor
             # vector to zero. Lastly, write the vector to desc.
-            # TODO-BLOCK-BEGIN
-            raise Exception("TODO in features.py not implemented")
-            # TODO-BLOCK-END
+            desc = (destImage - np.mean(destImage)) / np.std(destImage)
 
         return desc
 
