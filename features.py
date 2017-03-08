@@ -171,7 +171,7 @@ class HarrisKeypointDetector(KeypointDetector):
                if not harrisMaxImage[y, x]:
                    continue
 
-                # TODO: 3
+
                f = cv2.KeyPoint()
                f.size = 10
                f.pt = (x,y)
@@ -231,15 +231,15 @@ class SimpleFeatureDescriptor(FeatureDescriptor):
         grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         desc = np.zeros((len(keypoints), 5 * 5))
 
+        image = np.pad(grayImage, 2, 'constant', constant_values=0)
+
         for i, f in enumerate(keypoints):
             x, y = f.pt
 
             # TODO 4: The simple descriptor is a 5x5 window of intensities
             # sampled centered on the feature point. Store the descriptor
             # as a row-major vector. Treat pixels outside the image as zero.
-            # TODO-BLOCK-BEGIN
-            raise Exception("TODO in features.py not implemented")
-            # TODO-BLOCK-END
+            desc[i] = image[int(y):int(y)+5, int(x):int(x)+5].ravel()
 
         return desc
 
