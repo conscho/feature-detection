@@ -99,27 +99,21 @@ class HarrisKeypointDetector(KeypointDetector):
         # for direction on how to do this. Also compute an orientation
         # for each pixel and store it in 'orientationImage.'
 
-        print("Calculating Sobel")
         Ix = ndimage.filters.sobel(srcImage, 1)
         Iy = ndimage.filters.sobel(srcImage, 0)
-
         Ix2 = Ix**2
         Iy2 = Iy**2
         IxIy = Ix*Iy
 
-        print("Convolving")
         harris1 = ndimage.filters.gaussian_filter(Ix2, 0.5, truncate=3, mode='constant', cval=0)
         harris2 = ndimage.filters.gaussian_filter(Iy2, 0.5, truncate=3, mode='constant', cval=0)
         harris3 = ndimage.filters.gaussian_filter(IxIy, 0.5, truncate=3, mode='constant', cval=0)
 
-        print("Calculating Harris")
         for i in range(height):
             for j in range(width):
                 H = [[harris1[i][j], harris3[i][j]], [harris3[i][j],harris2[i][j]]]
                 harrisImage[i][j] = np.linalg.det(H) - 0.1 * (np.trace(H))**2
 
-        print("Calculating Orientation")
-        ## TODO: Using gaussian smoothed version?
         orientationImage = np.rad2deg(np.arctan2(Iy,Ix))
 
         return harrisImage, orientationImage
@@ -137,7 +131,7 @@ class HarrisKeypointDetector(KeypointDetector):
         '''
         destImage = np.zeros_like(harrisImage, np.bool)
         height, width = destImage.shape[:2]
-        destImage = (harrisImage != ndimage.maximum_filter(harrisImage,7))
+        destImage = (harrisImage == ndimage.maximum_filter(harrisImage,7))
 
         return destImage
 
@@ -177,7 +171,7 @@ class HarrisKeypointDetector(KeypointDetector):
                if not harrisMaxImage[y, x]:
                    continue
 
-                # TODO: 3   
+                # TODO: 3
                f = cv2.KeyPoint()
                f.size = 10
                f.pt = (x,y)
