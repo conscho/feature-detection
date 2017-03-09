@@ -105,9 +105,9 @@ class HarrisKeypointDetector(KeypointDetector):
         Iy2 = Iy**2
         IxIy = Ix*Iy
 
-        harris1 = ndimage.filters.gaussian_filter(Ix2, 0.5, truncate=3, mode='constant', cval=0)
-        harris2 = ndimage.filters.gaussian_filter(Iy2, 0.5, truncate=3, mode='constant', cval=0)
-        harris3 = ndimage.filters.gaussian_filter(IxIy, 0.5, truncate=3, mode='constant', cval=0)
+        harris1 = ndimage.filters.gaussian_filter(Ix2, 0.5, mode='constant', cval=0)
+        harris2 = ndimage.filters.gaussian_filter(Iy2, 0.5, mode='constant', cval=0)
+        harris3 = ndimage.filters.gaussian_filter(IxIy, 0.5, mode='constant', cval=0)
 
         for i in range(height):
             for j in range(width):
