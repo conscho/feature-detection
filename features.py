@@ -5,7 +5,7 @@ import numpy as np
 import scipy
 from scipy import ndimage, spatial
 
-import transformations
+from transformations import *
 
 
 def inbounds(shape, indices):
@@ -264,7 +264,6 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
         desc = np.zeros((len(keypoints), windowSize * windowSize))
         grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         grayImage = ndimage.gaussian_filter(grayImage, 0.5)
-        grayImage = np.pad(grayImage, 20, 'constant', constant_values=0)
 
         for i, f in enumerate(keypoints):
             # TODO 5: Compute the transform as described by the feature
@@ -273,17 +272,28 @@ class MOPSFeatureDescriptor(FeatureDescriptor):
             # the feature to the appropriate pixels in the 8x8 feature
             # descriptor image.
             transMx = np.zeros((2, 3))
-            transMx = (transformations.get_rot_mx(0,0,np.deg2rad(f.angle)) * transformations.get_scale_mx(5,5,0))[:2,:3]
+            x,y = f.pt
+
+            transformation = np.dot(get_trans_mx(np.array([+4,+4,0])),
+                np.dot(get_scale_mx(0.2,0.2,1) ,
+                np.dot(get_rot_mx(0.0, 0.0, angle_z=(-1)*np.radians(f.angle)) ,
+                get_trans_mx(np.array([-x,-y,0])))))
+
+            transMx = transformation[:2,[0,1,3]]
 
             # Call the warp affine function to do the mapping
             # It expects a 2x3 matrix
             destImage = cv2.warpAffine(grayImage, transMx,
                 (windowSize, windowSize), flags=cv2.INTER_LINEAR)
 
+            # if np.sum(destImage) != 0:
+            #     print(destImage)
             # TODO 6: Normalize the descriptor to have zero mean and unit
             # variance. If the variance is zero then set the descriptor
             # vector to zero. Lastly, write the vector to desc.
-            desc = (destImage - np.mean(destImage)) / np.std(destImage)
+            temp = (destImage - np.mean(destImage))
+            if np.std(temp) > 1e-5:
+                desc[i,:] = (temp / np.std(temp)).ravel()
 
         return desc
 
