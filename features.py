@@ -418,7 +418,11 @@ class SSDFeatureMatcher(FeatureMatcher):
         # Note: multiple features from the first image may match the same
         # feature in the second image.
         # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
+        distances = scipy.spatial.distance.cdist(desc1, desc2)
+        mins = np.argmin(distances, axis=1)
+        for i in range(len(desc1)):
+            d = cv2.DMatch(i, mins[i] , distances[i,mins[i]])
+            matches.append(d)
         # TODO-BLOCK-END
 
         return matches
@@ -460,7 +464,11 @@ class RatioFeatureMatcher(FeatureMatcher):
         # feature in the second image.
         # You don't need to threshold matches in this function
         # TODO-BLOCK-BEGIN
-        raise Exception("TODO in features.py not implemented")
+        distances = scipy.spatial.distance.cdist(desc1, desc2)
+        mins = np.argpartition(distances, 2, axis=1)
+        for i in range(len(desc1)):
+            d = cv2.DMatch(i, mins[i][0], distances[i,mins[i][0]]/distances[i,mins[i][1]])
+            matches.append(d)
         # TODO-BLOCK-END
 
         return matches
